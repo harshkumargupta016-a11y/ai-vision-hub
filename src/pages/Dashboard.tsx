@@ -36,9 +36,9 @@ function generateAQI() {
 }
 
 function getAQILevel(aqi: number) {
-  if (aqi <= 50) return { label: "Good", color: "bg-neo-green", textColor: "text-primary-foreground", icon: "🟢" };
-  if (aqi <= 100) return { label: "Moderate", color: "bg-neo-yellow", textColor: "text-primary-foreground", icon: "🟡" };
-  if (aqi <= 150) return { label: "Unhealthy (Sensitive)", color: "bg-neo-orange", textColor: "text-primary-foreground", icon: "🟠" };
+  if (aqi <= 50) return { label: "Good", color: "bg-neo-green", textColor: "text-foreground", icon: "🟢" };
+  if (aqi <= 100) return { label: "Moderate", color: "bg-neo-yellow", textColor: "text-foreground", icon: "🟡" };
+  if (aqi <= 150) return { label: "Unhealthy (Sensitive)", color: "bg-neo-orange", textColor: "text-foreground", icon: "🟠" };
   if (aqi <= 200) return { label: "Unhealthy", color: "bg-neo-red", textColor: "text-white", icon: "🔴" };
   if (aqi <= 300) return { label: "Very Unhealthy", color: "bg-neo-purple", textColor: "text-white", icon: "🟣" };
   return { label: "Hazardous", color: "bg-[#880E4F]", textColor: "text-white", icon: "⚫" };
@@ -92,7 +92,7 @@ export default function Dashboard() {
             onClick={() => navigate("/")}
           >
             <div className="neo-border bg-neo-yellow p-2">
-              <Eye className="size-4 text-primary-foreground" />
+              <Eye className="size-4 text-foreground" />
             </div>
             <div>
               <h1 className="font-black text-sm uppercase tracking-wide">
@@ -190,14 +190,14 @@ export default function Dashboard() {
             {/* Quick Actions */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <Button
-                className="neo-btn bg-neo-yellow text-primary-foreground text-xs py-4"
+                className="neo-btn bg-neo-yellow text-foreground text-xs py-4"
                 onClick={() => navigate("/chat")}
               >
                 <Bot className="mr-1 size-4" />
                 AI Chat
               </Button>
               <Button
-                className="neo-btn bg-neo-green text-primary-foreground text-xs py-4"
+                className="neo-btn bg-neo-green text-foreground text-xs py-4"
                 onClick={() => navigate("/report")}
               >
                 <Plus className="mr-1 size-4" />
@@ -285,7 +285,7 @@ export default function Dashboard() {
                         : "bg-neo-orange"
                     }`}
                   >
-                    <AlertTriangle className="size-4 text-primary-foreground" />
+                    <AlertTriangle className="size-4 text-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-xs truncate">{complaint.title}</p>

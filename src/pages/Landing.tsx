@@ -146,7 +146,7 @@ export default function Landing() {
               transition={{ duration: 0.6 }}
               className="space-y-6"
             >
-              <div className="neo-tag bg-neo-green text-primary-foreground inline-block px-3 py-1">
+              <div className="neo-tag bg-neo-green text-foreground inline-block px-3 py-1">
                 🌍 Environmental AI Platform
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black uppercase leading-[0.92] tracking-tight">
@@ -154,7 +154,7 @@ export default function Landing() {
                 <br />
                 on the
                 <br />
-                <span className="bg-neo-yellow neo-border inline-block px-3 py-1 mt-1 text-primary-foreground">
+                <span className="bg-neo-yellow neo-border inline-block px-3 py-1 mt-1 text-foreground">
                   Air.
                 </span>
               </h1>
@@ -195,7 +195,7 @@ export default function Landing() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="neo-border bg-neo-yellow p-2">
-                      <Activity className="size-5 text-primary-foreground" />
+                      <Activity className="size-5 text-foreground" />
                     </div>
                     <div>
                       <p className="font-bold text-sm uppercase">
@@ -262,7 +262,7 @@ export default function Landing() {
                 transition={{ duration: 3, repeat: Infinity }}
                 className="absolute -top-4 -right-4 neo-border bg-neo-green p-3 hidden lg:block"
               >
-                <Wind className="size-5 text-primary-foreground" />
+                <Wind className="size-5 text-foreground" />
               </motion.div>
               <motion.div
                 animate={{ y: [4, -4, 4] }}
@@ -307,14 +307,13 @@ export default function Landing() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-            >
-              <div className="neo-tag bg-neo-yellow text-primary-foreground inline-block px-3 py-1 mb-4">
-                Features
-              </div>
+            >                  <div className="neo-tag bg-neo-yellow text-foreground inline-block px-3 py-1 mb-4">
+                    Features
+                  </div>
               <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight">
                 Complete Air Quality
                 <br />
-                <span className="bg-neo-green neo-border inline-block px-3 py-1 mt-1 text-primary-foreground">
+                <span className="bg-neo-green neo-border inline-block px-3 py-1 mt-1 text-foreground">
                   Monitoring Suite
                 </span>
               </h2>
@@ -334,7 +333,7 @@ export default function Landing() {
                 <div
                   className={`neo-border ${feature.color} p-3 inline-block`}
                 >
-                  <span className={feature.textColor}>{feature.icon}</span>
+                  <span className="text-foreground">{feature.icon}</span>
                 </div>
                 <h3 className="font-bold text-sm uppercase tracking-wide">
                   {feature.title}
@@ -355,13 +354,13 @@ export default function Landing() {
       <section className="neo-border-y border-border bg-card py-16 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <div className="neo-tag bg-neo-blue text-primary-foreground inline-block px-3 py-1 mb-4">
+            <div className="neo-tag bg-neo-blue text-foreground inline-block px-3 py-1 mb-4">
               How It Works
             </div>
             <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight">
               Three Steps to
               <br />
-              <span className="bg-neo-yellow neo-border inline-block px-3 py-1 mt-1 text-primary-foreground">
+              <span className="bg-neo-yellow neo-border inline-block px-3 py-1 mt-1 text-foreground">
                 Cleaner Air
               </span>
             </h2>
@@ -383,7 +382,7 @@ export default function Landing() {
                 <div
                   className={`${item.color} neo-border p-4 inline-block mb-4 mt-2`}
                 >
-                  <span className="text-primary-foreground">{item.icon}</span>
+                  <span className="text-foreground">{item.icon}</span>
                 </div>
                 <h3 className="font-bold text-lg uppercase mb-2">{item.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -410,12 +409,12 @@ export default function Landing() {
             <div className="neo-border bg-primary text-primary-foreground p-4 inline-block mb-6">
               <Leaf className="size-8" />
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight mb-4 text-primary-foreground">
+            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight mb-4 text-foreground">
               Start Monitoring
               <br />
               Air Quality Now
             </h2>
-            <p className="text-primary-foreground/70 max-w-md mx-auto mb-8">
+            <p className="text-foreground/70 max-w-md mx-auto mb-8">
               Join thousands of citizens and researchers using AI to understand
               and combat air pollution in the Indore-Pithampur corridor.
             </p>
@@ -438,9 +437,9 @@ export default function Landing() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="neo-border bg-neo-yellow p-2">
-                <Eye className="size-4 text-primary-foreground" />
-              </div>
-              <span className="font-black uppercase text-sm">VayuNetra</span>
+              <Eye className="size-4 text-foreground" />
+            </div>
+            <span className="font-black uppercase text-sm">VayuNetra</span>
             </div>
             <p className="text-xs text-muted-foreground">
               © 2026 VayuNetra. Environmental monitoring powered by Google AI.

@@ -153,7 +153,7 @@ export default function ChatAssistant() {
           <h2 className="font-bold text-sm uppercase tracking-wide">
             VayuNetra AI
           </h2>
-          <p className="text-xs text-primary-foreground/70">
+          <p className="text-xs text-muted-foreground">
             Powered by Google Gemini
           </p>
         </div>
@@ -213,7 +213,7 @@ export default function ChatAssistant() {
             >
               {msg.role === "model" && (
                 <div className="neo-border bg-neo-yellow p-2 h-fit shrink-0">
-                  <Bot className="size-4 text-primary-foreground" />
+                  <Bot className="size-4 text-foreground" />
                 </div>
               )}
               <div

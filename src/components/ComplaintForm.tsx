@@ -133,7 +133,7 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
         className="neo-card bg-neo-green/10 p-8 text-center space-y-4"
       >
         <div className="neo-border bg-neo-green p-4 inline-block mx-auto">
-          <CheckCircle2 className="size-8 text-primary-foreground" />
+          <CheckCircle2 className="size-8 text-foreground" />
         </div>
         <h3 className="font-bold text-lg uppercase">Report Submitted</h3>
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">

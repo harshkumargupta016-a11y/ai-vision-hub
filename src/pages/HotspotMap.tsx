@@ -167,8 +167,7 @@ export default function HotspotMap() {
           <div
             className="neo-border bg-neo-yellow p-2 cursor-pointer"
             onClick={() => navigate("/")}
-          >
-            <Eye className="size-4 text-primary-foreground" />
+          >              <Eye className="size-4 text-foreground" />
           </div>
           <div>
             <h1 className="font-black text-sm uppercase tracking-wide">
@@ -192,7 +191,7 @@ export default function HotspotMap() {
             {satellite ? "Satellite" : "Street"}
           </Button>
           <Button
-            className="neo-btn bg-neo-yellow text-primary-foreground text-xs"
+            className="neo-btn bg-neo-yellow text-foreground text-xs"
             onClick={() => navigate("/report")}
           >
             <Plus className="mr-1 size-4" />

@@ -23,8 +23,7 @@ export default function ChatPage() {
           >
             <ArrowLeft className="size-4" />
           </button>
-          <div className="neo-border bg-neo-yellow p-2">
-            <Eye className="size-4 text-primary-foreground" />
+          <div className="neo-border bg-neo-yellow p-2">              <Eye className="size-4 text-foreground" />
           </div>
           <div>
             <h1 className="font-black text-sm uppercase tracking-wide">

@@ -128,7 +128,7 @@ export default function AdminPanel() {
           </div>
           <div className="flex items-center gap-2">
             <Button
-              className="neo-btn bg-neo-yellow text-primary-foreground text-xs"
+              className="neo-btn bg-neo-yellow text-foreground text-xs"
               onClick={handleAutoVerify}
             >
               <Clock className="mr-1 size-3" />
@@ -344,7 +344,7 @@ export default function AdminPanel() {
                   <Button
                     onClick={() => handleVerify("admin_verified")}
                     disabled={isProcessing}
-                    className="neo-btn bg-neo-green text-primary-foreground flex-1"
+                    className="neo-btn bg-neo-green text-foreground flex-1"
                   >
                     <CheckCircle2 className="mr-1 size-4" />
                     {isProcessing ? "Processing..." : "Verify"}

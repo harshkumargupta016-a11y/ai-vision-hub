@@ -42,46 +42,46 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-neo-yellow: #FFD600;
   --color-neo-green: #00E676;
-  --color-neo-blue: #00B0FF;
+  --color-neo-blue: #2979FF;
   --color-neo-red: #FF1744;
   --color-neo-orange: #FF9100;
-  --color-neo-purple: #D500F9;
+  --color-neo-purple: #AA00FF;
 }
 
-/* Dark Neobrutalist Theme */
+/* Vibrant White Textured Theme */
 :root {
   --radius: 0px;
-  --background: #0A0A0A;
-  --foreground: #F5F5F5;
-  --card: #141414;
-  --card-foreground: #F5F5F5;
-  --popover: #141414;
-  --popover-foreground: #F5F5F5;
-  --primary: #FFD600;
-  --primary-foreground: #0A0A0A;
-  --secondary: #1A1A1A;
-  --secondary-foreground: #F5F5F5;
-  --muted: #1A1A1A;
-  --muted-foreground: #888888;
+  --background: #F8F7F4;
+  --foreground: #1A1A1A;
+  --card: #FFFFFF;
+  --card-foreground: #1A1A1A;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A1A;
+  --primary: #1A1A1A;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F0EDE8;
+  --secondary-foreground: #1A1A1A;
+  --muted: #F0EDE8;
+  --muted-foreground: #6B6560;
   --accent: #FFD600;
-  --accent-foreground: #0A0A0A;
+  --accent-foreground: #1A1A1A;
   --destructive: #FF1744;
-  --border: #F5F5F5;
-  --input: #222222;
-  --ring: #FFD600;
+  --border: #1A1A1A;
+  --input: #E8E4DF;
+  --ring: #1A1A1A;
   --chart-1: #FFD600;
   --chart-2: #00E676;
-  --chart-3: #00B0FF;
+  --chart-3: #2979FF;
   --chart-4: #FF9100;
   --chart-5: #FF1744;
-  --sidebar: #0F0F0F;
-  --sidebar-foreground: #F5F5F5;
-  --sidebar-primary: #FFD600;
-  --sidebar-primary-foreground: #0A0A0A;
-  --sidebar-accent: #1A1A1A;
-  --sidebar-accent-foreground: #F5F5F5;
-  --sidebar-border: #F5F5F5;
-  --sidebar-ring: #FFD600;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-primary: #1A1A1A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F0EDE8;
+  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-border: #1A1A1A;
+  --sidebar-ring: #1A1A1A;
 }
 
 @layer base {
@@ -93,6 +93,10 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
+    /* Subtle grain texture overlay */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
   }
   button:not([disabled]),
   [role="button"]:not([disabled]) {
@@ -103,14 +107,14 @@
     width: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #0A0A0A;
+    background: #F8F7F4;
   }
   ::-webkit-scrollbar-thumb {
-    background: #333;
-    border: 1px solid #F5F5F5;
+    background: #CCC8C0;
+    border: 1px solid #1A1A1A;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: #AAA59E;
   }
 }
 
@@ -138,6 +142,18 @@
   .neo-shadow-colored {
     box-shadow: 4px 4px 0px 0px var(--primary);
   }
+  .neo-shadow-yellow {
+    box-shadow: 4px 4px 0px 0px #FFD600;
+  }
+  .neo-shadow-green {
+    box-shadow: 4px 4px 0px 0px #00E676;
+  }
+  .neo-shadow-blue {
+    box-shadow: 4px 4px 0px 0px #2979FF;
+  }
+  .neo-shadow-red {
+    box-shadow: 4px 4px 0px 0px #FF1744;
+  }
   .neo-btn {
     border: 2px solid var(--foreground);
     box-shadow: 4px 4px 0px 0px var(--foreground);
@@ -159,8 +175,8 @@
   .neo-input {
     border: 2px solid var(--foreground);
     border-radius: 0px;
-    background: #1A1A1A;
-    color: #F5F5F5;
+    background: #FFFFFF;
+    color: #1A1A1A;
   }
   .neo-input:focus {
     outline: none;
@@ -174,23 +190,14 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
-  .neo-glow {
-    box-shadow: 0 0 20px rgba(255, 214, 0, 0.15);
-  }
-  .neo-glow-green {
-    box-shadow: 0 0 20px rgba(0, 230, 118, 0.15);
-  }
-  .neo-glow-red {
-    box-shadow: 0 0 20px rgba(255, 23, 68, 0.15);
-  }
 }
 
 /* AQI color coding */
-.aqi-good { color: #00E676; border-color: #00E676; }
+.aqi-good { color: #00C853; border-color: #00C853; }
 .aqi-moderate { color: #FFD600; border-color: #FFD600; }
 .aqi-unhealthy-sensitive { color: #FF9100; border-color: #FF9100; }
 .aqi-unhealthy { color: #FF1744; border-color: #FF1744; }
-.aqi-very-unhealthy { color: #D500F9; border-color: #D500F9; }
+.aqi-very-unhealthy { color: #AA00FF; border-color: #AA00FF; }
 .aqi-hazardous { color: #880E4F; border-color: #880E4F; }
 
 /* Marquee animation for tech stack */
@@ -219,8 +226,8 @@
 
 /* Pulse glow for live indicators */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.4); }
-  50% { box-shadow: 0 0 0 6px rgba(0, 230, 118, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(0, 200, 83, 0); }
 }
 .pulse-live {
   animation: pulse-glow 2s ease-in-out infinite;
@@ -233,19 +240,23 @@ html {
 
 /* Leaflet overrides for neobrutalist */
 .leaflet-container {
-  border: 2px solid #F5F5F5;
+  border: 2px solid #1A1A1A;
 }
 .leaflet-control-zoom a {
   border-radius: 0 !important;
-  border: 2px solid #F5F5F5 !important;
-  background: #141414 !important;
-  color: #F5F5F5 !important;
+  border: 2px solid #1A1A1A !important;
+  background: #FFFFFF !important;
+  color: #1A1A1A !important;
+}
+.leaflet-control-zoom a:hover {
+  background: #F0EDE8 !important;
 }
 .leaflet-control-attribution {
-  background: #141414 !important;
-  color: #888 !important;
-  border-top: 1px solid #333 !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #6B6560 !important;
+  border-top: 1px solid #1A1A1A !important;
 }
 .leaflet-control-attribution a {
-  color: #FFD600 !important;
+  color: #1A1A1A !important;
+  font-weight: 600;
 }

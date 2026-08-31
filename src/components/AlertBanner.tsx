@@ -48,11 +48,11 @@ export default function AlertBanner() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className={`${config.bg} text-primary-foreground neo-border overflow-hidden`}
+              className={`${config.bg} text-foreground neo-border overflow-hidden`}
             >
               <div className="px-3 py-2 flex items-center gap-2 text-xs font-bold">
                 {config.icon}
-                <span className="neo-tag bg-primary/20 text-primary-foreground px-2 py-0.5">
+                <span className="neo-tag bg-primary/20 text-foreground px-2 py-0.5">
                   {config.label}
                 </span>
                 <span className="font-medium flex-1 truncate">
