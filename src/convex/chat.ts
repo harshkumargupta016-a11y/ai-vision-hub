@@ -21,11 +21,14 @@ export const chat = action({
     ),
   },
   handler: async (_ctx, args) => {
-    if (!GEMINI_API_KEY) {
-      throw new Error("Gemini API key not configured. Please add VITE_GOOGLE_API_KEY to your environment.");
-    }
+    try {
+      if (!GEMINI_API_KEY) {
+        throw new Error(
+          "Gemini API key not configured. Add GOOGLE_API_KEY in your Convex dashboard → Settings → Environment Variables."
+        );
+      }
 
-    const systemPrompt = `You are VayuNetra AI, an expert environmental assistant specializing in air quality monitoring, pollution analysis, and environmental protection for the Indore-Pithampur corridor in Madhya Pradesh, India.
+      const systemPrompt = `You are VayuNetra AI, an expert environmental assistant specializing in air quality monitoring, pollution analysis, and environmental protection for the Indore-Pithampur corridor in Madhya Pradesh, India.
 
 Your name "VayuNetra" means "Eye on the Air" — you are the intelligent monitoring brain behind the VayuNetra platform.
 
@@ -55,51 +58,59 @@ Guidelines:
 - If asked about reporting pollution, guide users to the Report page
 - If asked about maps, guide users to the Hotspot Map page`;
 
-    const geminiMessages: GeminiMessage[] = args.messages.map((msg) => ({
-      role: msg.role,
-      parts: [{ text: msg.content }],
-    }));
+      const geminiMessages: GeminiMessage[] = args.messages.map((msg) => ({
+        role: msg.role,
+        parts: [{ text: msg.content }],
+      }));
 
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contents: geminiMessages,
-        systemInstruction: {
-          parts: [{ text: systemPrompt }],
+      const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        generationConfig: {
-          temperature: 0.7,
-          topP: 0.9,
-          topK: 40,
-          maxOutputTokens: 2048,
-        },
-      }),
-    });
+        body: JSON.stringify({
+          contents: geminiMessages,
+          systemInstruction: {
+            parts: [{ text: systemPrompt }],
+          },
+          generationConfig: {
+            temperature: 0.7,
+            topP: 0.9,
+            topK: 40,
+            maxOutputTokens: 2048,
+          },
+        }),
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Gemini API error:", response.status, errorText);
-      let detail = "";
-      try {
-        const errJson = JSON.parse(errorText);
-        detail = errJson?.error?.message || errorText.substring(0, 200);
-      } catch {
-        detail = errorText.substring(0, 200);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Gemini API error:", response.status, errorText);
+        let detail = "";
+        try {
+          const errJson = JSON.parse(errorText);
+          detail = errJson?.error?.message || errorText.substring(0, 300);
+        } catch {
+          detail = errorText.substring(0, 300);
+        }
+        throw new Error(`Gemini API error ${response.status}: ${detail}`);
       }
-      throw new Error(`Gemini API error ${response.status}: ${detail}`);
+
+      const data = await response.json();
+
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) {
+        console.error("Gemini empty response:", JSON.stringify(data).substring(0, 500));
+        throw new Error(
+          "Gemini returned an empty response. This may indicate a content filter, safety block, or invalid request. Check your API key permissions."
+        );
+      }
+
+      return text;
+    } catch (err) {
+      // Ensure the real error message is always returned to the client
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("[VayuNetra Chat Error]", message);
+      throw new Error(message);
     }
-
-    const data = await response.json();
-
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) {
-      console.error("Gemini empty response:", JSON.stringify(data).substring(0, 500));
-      throw new Error("Gemini returned an empty response. This may indicate a content filter or invalid request.");
-    }
-
-    return text;
   },
 });
