@@ -91,11 +91,14 @@ export default function ChatAssistant() {
       setMessages((prev) => [...prev, modelMsg]);
     } catch (error) {
       console.error("Chat error:", error);
+      const errMessage = error instanceof Error ? error.message : String(error);
+      const isApiKey = errMessage.includes("API key not configured");
       const errorMsg: Message = {
         id: crypto.randomUUID(),
         role: "model",
-        content:
-          "Sorry, I encountered an error processing your request. Please check that the Gemini API key is configured and try again.",
+        content: isApiKey
+          ? "Gemini API key is not configured. Please add GOOGLE_API_KEY to your Convex environment in the Keys tab."
+          : `Sorry, something went wrong: ${errMessage}`,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMsg]);

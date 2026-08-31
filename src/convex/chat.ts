@@ -3,7 +3,7 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 
-const GEMINI_API_KEY = process.env.VITE_GOOGLE_API_KEY;
+const GEMINI_API_KEY = process.env.GOOGLE_API_KEY || process.env.VITE_GOOGLE_API_KEY;
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 interface GeminiMessage {
@@ -82,14 +82,22 @@ Guidelines:
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Gemini API error:", response.status, errorText);
-      throw new Error(`Gemini API error: ${response.status}`);
+      let detail = "";
+      try {
+        const errJson = JSON.parse(errorText);
+        detail = errJson?.error?.message || errorText.substring(0, 200);
+      } catch {
+        detail = errorText.substring(0, 200);
+      }
+      throw new Error(`Gemini API error ${response.status}: ${detail}`);
     }
 
     const data = await response.json();
 
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) {
-      throw new Error("No response generated from Gemini");
+      console.error("Gemini empty response:", JSON.stringify(data).substring(0, 500));
+      throw new Error("Gemini returned an empty response. This may indicate a content filter or invalid request.");
     }
 
     return text;
