@@ -81,6 +81,8 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Color band accent */}
+      <div className="color-band" />
       {/* Alert Banner */}
       <AlertBanner />
 
@@ -133,7 +135,7 @@ export default function Dashboard() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="neo-card bg-card overflow-hidden"
+          className="neo-card shimmer-border bg-card overflow-hidden"
         >
           <div className={`${aqiLevel.color} ${aqiLevel.textColor} px-4 py-2 flex items-center justify-between`}>
             <div className="flex items-center gap-2">
@@ -148,7 +150,7 @@ export default function Dashboard() {
 
           <div className="p-6">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <div className="neo-border bg-background p-4 text-center">
+              <div className="neo-border bg-background p-4 text-center aqi-pulse">
                 <p className="text-4xl font-black">{aqiData.overall}</p>
                 <p className="text-xs text-muted-foreground uppercase mt-1">AQI</p>
                 <p className={`text-xs font-bold mt-1 ${aqiLevel.textColor}`}>

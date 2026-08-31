@@ -106,6 +106,9 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
+      {/* Color band accent */}
+      <div className="color-band" />
+
       {/* Navigation */}
       <nav className="neo-border-b border-border bg-card sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -138,7 +141,9 @@ export default function Landing() {
 
       {/* Hero Section */}
       <section className="relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-12">
+        {/* Dot pattern background */}
+        <div className="absolute inset-0 dot-pattern pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-12 relative">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -158,6 +163,14 @@ export default function Landing() {
                   Air.
                 </span>
               </h1>
+              {/* Decorative floating dots */}
+              <div className="absolute top-8 right-8 lg:block hidden">
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 bg-neo-yellow neo-border animate-float" />
+                  <div className="w-3 h-3 bg-neo-green neo-border animate-float-delayed" />
+                  <div className="w-3 h-3 bg-neo-blue neo-border animate-float-slow" />
+                </div>
+              </div>
               <p className="text-base sm:text-lg text-muted-foreground max-w-lg leading-relaxed">
                 AI-powered air quality monitoring for the Indore-Pithampur
                 corridor. Report pollution, get instant AI verification, track
@@ -258,19 +271,27 @@ export default function Landing() {
 
               {/* Floating elements */}
               <motion.div
-                animate={{ y: [-4, 4, -4] }}
+                animate={{ y: [-4, 4, -4], rotate: [0, 5, 0] }}
                 transition={{ duration: 3, repeat: Infinity }}
-                className="absolute -top-4 -right-4 neo-border bg-neo-green p-3 hidden lg:block"
+                className="absolute -top-4 -right-4 neo-border bg-neo-green p-3 hidden lg:block animate-float"
               >
                 <Wind className="size-5 text-foreground" />
               </motion.div>
               <motion.div
-                animate={{ y: [4, -4, 4] }}
+                animate={{ y: [4, -4, 4], rotate: [0, -5, 0] }}
                 transition={{ duration: 4, repeat: Infinity }}
-                className="absolute -bottom-4 -left-4 neo-border bg-neo-blue text-white p-3 hidden lg:block"
+                className="absolute -bottom-4 -left-4 neo-border bg-neo-blue text-white p-3 hidden lg:block animate-float-delayed"
               >
                 <Globe className="size-5" />
               </motion.div>
+              {/* Additional floating accent dots */}
+              <div className="absolute top-1/2 -right-8 hidden xl:block">
+                <div className="flex flex-col gap-3">
+                  <div className="w-2 h-2 bg-neo-orange neo-border animate-float" />
+                  <div className="w-2 h-2 bg-neo-purple neo-border animate-float-delayed" />
+                  <div className="w-2 h-2 bg-neo-red neo-border animate-float-slow" />
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>
@@ -404,7 +425,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="neo-card bg-neo-yellow p-8 sm:p-12"
+            className="neo-card shimmer-border bg-neo-yellow p-8 sm:p-12"
           >
             <div className="neo-border bg-primary text-primary-foreground p-4 inline-block mb-6">
               <Leaf className="size-8" />
@@ -432,7 +453,8 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="neo-border-t border-border bg-card py-8">
+      <div className="color-band" />
+      <footer className="bg-card py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">

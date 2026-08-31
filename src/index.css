@@ -238,6 +238,108 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Animated gradient backgrounds */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease infinite;
+}
+
+/* Hero gradient: yellow → orange → red */
+.gradient-hero {
+  background: linear-gradient(135deg, #FFD600 0%, #FF9100 33%, #FF1744 66%, #AA00FF 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Card shimmer effect */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer-border {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 214, 0, 0.3) 25%,
+    rgba(0, 230, 118, 0.3) 50%,
+    rgba(41, 121, 255, 0.3) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 4s linear infinite;
+  z-index: -1;
+}
+
+/* Floating animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-8px) rotate(1deg); }
+  75% { transform: translateY(4px) rotate(-1deg); }
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+.animate-float-delayed {
+  animation: float 7s ease-in-out infinite;
+  animation-delay: 1s;
+}
+.animate-float-slow {
+  animation: float 9s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+/* Dot grid pattern */
+.dot-pattern {
+  background-image: radial-gradient(circle, #1A1A1A 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.04;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #FFD600, #FF9100, #FF1744);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* AQI pulse ring */
+@keyframes aqi-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 145, 0, 0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(255, 145, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 145, 0, 0); }
+}
+.aqi-pulse {
+  animation: aqi-pulse 2s ease-in-out infinite;
+}
+
+/* Color band accent */
+.color-band {
+  height: 4px;
+  background: linear-gradient(90deg, #FFD600, #00E676, #2979FF, #FF9100, #FF1744);
+}
+
+/* Hover lift */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(26, 26, 26, 0.12);
+}
+
 /* Leaflet overrides for neobrutalist */
 .leaflet-container {
   border: 2px solid #1A1A1A;

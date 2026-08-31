@@ -145,10 +145,9 @@ export default function ChatAssistant() {
   return (
     <div className="flex flex-col h-full">
       {/* Chat Header */}
-      <div className="neo-border bg-neo-yellow px-4 py-3 flex items-center gap-3">
-        <div className="neo-border bg-primary text-primary-foreground p-2">
-          <Bot className="size-5" />
-        </div>
+      <div className="neo-border bg-gradient-to-r from-neo-yellow via-neo-orange to-neo-red px-4 py-3 flex items-center gap-3 animate-gradient">            <div className="neo-border bg-primary text-primary-foreground p-2 neo-shadow-sm">
+              <Bot className="size-5" />
+            </div>
         <div>
           <h2 className="font-bold text-sm uppercase tracking-wide">
             VayuNetra AI
