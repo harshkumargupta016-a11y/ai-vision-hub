@@ -32,12 +32,76 @@ const schema = defineSchema(
       role: v.optional(roleValidator), // role of the user. do not remove
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
-    // add other tables here
+    // Pollution complaints / reports
+    complaints: defineTable({
+      userId: v.string(),
+      userName: v.optional(v.string()),
+      title: v.string(),
+      description: v.string(),
+      pollutionType: v.optional(v.string()), // e.g., "Crop Burning", "Industrial Smoke", "Vehicle Emissions"
+      latitude: v.number(),
+      longitude: v.number(),
+      locationName: v.optional(v.string()),
+      imageUrl: v.optional(v.string()),
+      aqi: v.optional(v.number()),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("ai_verified"),
+        v.literal("admin_verified"),
+        v.literal("auto_verified"),
+        v.literal("rejected")
+      ),
+      aiVerification: v.optional(
+        v.object({
+          pollutionType: v.string(),
+          confidence: v.number(),
+          severity: v.string(),
+          notes: v.optional(v.string()),
+        })
+      ),
+      adminId: v.optional(v.string()),
+      adminNotes: v.optional(v.string()),
+      createdAt: v.number(),
+      verifiedAt: v.optional(v.number()),
+      expiresAt: v.number(), // auto-verify after 2 hours
+    })
+      .index("by_user", ["userId"])
+      .index("by_status", ["status"])
+      .index("by_created", ["createdAt"])
+      .index("by_expires", ["expiresAt"]),
 
-    // tableName: defineTable({
-    //   ...
-    //   // table fields
-    // }).index("by_field", ["field"])
+    // Alerts / warnings
+    alerts: defineTable({
+      title: v.string(),
+      message: v.string(),
+      severity: v.union(
+        v.literal("info"),
+        v.literal("warning"),
+        v.literal("danger"),
+        v.literal("critical")
+      ),
+      latitude: v.optional(v.number()),
+      longitude: v.optional(v.number()),
+      radius: v.optional(v.number()), // in km
+      active: v.boolean(),
+      createdBy: v.string(),
+      createdAt: v.number(),
+      expiresAt: v.number(),
+    })
+      .index("by_active", ["active"])
+      .index("by_severity", ["severity"])
+      .index("by_created", ["createdAt"]),
+
+    // Comments on complaints
+    comments: defineTable({
+      complaintId: v.string(),
+      userId: v.string(),
+      userName: v.optional(v.string()),
+      content: v.string(),
+      createdAt: v.number(),
+    })
+      .index("by_complaint", ["complaintId"])
+      .index("by_user", ["userId"]),
   },
   {
     schemaValidation: false,

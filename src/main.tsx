@@ -13,6 +13,10 @@ import "./index.css";
 const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const ChatPage = lazy(() => import("./pages/ChatPage.tsx"));
+const HotspotMap = lazy(() => import("./pages/HotspotMap.tsx"));
+const ReportPage = lazy(() => import("./pages/ReportPage.tsx"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -129,6 +133,38 @@ createRoot(document.getElementById("root")!).render(
                 element={
                   <RequireAuth>
                     <Dashboard />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/chat"
+                element={
+                  <RequireAuth>
+                    <ChatPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/hotspots"
+                element={
+                  <RequireAuth>
+                    <HotspotMap />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/report"
+                element={
+                  <RequireAuth>
+                    <ReportPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <RequireAuth>
+                    <AdminPanel />
                   </RequireAuth>
                 }
               />

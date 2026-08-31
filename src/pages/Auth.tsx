@@ -15,8 +15,7 @@ import {
 } from "@/components/ui/input-otp";
 
 import { useAuth } from "@/hooks/use-auth";
-import logo from "@/assets/logo.svg";
-import { ArrowRight, Loader2, Mail, UserX } from "lucide-react";
+import { ArrowRight, Loader2, Mail, UserX, Eye } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
@@ -121,18 +120,13 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
             <>
               <CardHeader className="text-center">
               <div className="flex justify-center">
-                    <img
-                      src={logo}
-                      alt="Lock Icon"
-                      width={64}
-                      height={64}
-                      className="rounded-lg mb-4 mt-4 cursor-pointer"
-                      onClick={() => navigate("/")}
-                    />
+                    <div className="neo-border bg-neo-yellow p-3 mb-4 mt-4 cursor-pointer" onClick={() => navigate("/")}>
+                      <Eye className="size-8 text-primary-foreground" />
+                    </div>
                   </div>
-                <CardTitle className="text-xl">Get Started</CardTitle>
+                <CardTitle className="text-xl uppercase font-black">VayuNetra</CardTitle>
                 <CardDescription>
-                  Enter your email to log in or sign up
+                  Enter your email to access the air quality dashboard
                 </CardDescription>
               </CardHeader>
               <form onSubmit={handleEmailSubmit}>
@@ -277,7 +271,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
             </>
           )}
 
-          <div className="py-4 px-6 text-xs text-center text-muted-foreground bg-muted border-t rounded-b-lg">
+          <div className="py-4 px-6 text-xs text-center text-muted-foreground bg-muted border-t">
             Secured by{" "}
             <a
               href="https://freebuff.com"
@@ -285,7 +279,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
               rel="noopener noreferrer"
               className="underline hover:text-primary transition-colors"
             >
-              freebuff.com
+              VayuNetra
             </a>
           </div>
         </Card>

@@ -3,7 +3,6 @@ import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Send,
   Bot,
@@ -113,7 +112,6 @@ export default function ChatAssistant() {
   };
 
   const formatContent = (content: string) => {
-    // Simple markdown-like formatting
     return content.split("\n").map((line, i) => {
       if (line.startsWith("**") && line.endsWith("**")) {
         return (
@@ -153,15 +151,15 @@ export default function ChatAssistant() {
         </div>
         <div>
           <h2 className="font-bold text-sm uppercase tracking-wide">
-            AirSentinel AI
+            VayuNetra AI
           </h2>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-primary-foreground/70">
             Powered by Google Gemini
           </p>
         </div>
-        <div className="ml-auto flex items-center gap-1">
-          <span className="size-2 bg-neo-green neo-border rounded-full" />
-          <span className="text-xs font-medium">Online</span>
+        <div className="ml-auto flex items-center gap-1.5">
+          <span className="size-2 bg-neo-green neo-border rounded-full pulse-live" />
+          <span className="text-xs font-bold">Online</span>
         </div>
       </div>
 
@@ -174,12 +172,12 @@ export default function ChatAssistant() {
               animate={{ opacity: 1, y: 0 }}
               className="flex flex-col items-center justify-center h-full gap-6"
             >
-              <div className="neo-border bg-primary text-primary-foreground p-6">
+              <div className="neo-border bg-primary text-primary-foreground p-6 neo-shadow-colored">
                 <Bot className="size-12" />
               </div>
               <div className="text-center space-y-2">
                 <h3 className="text-lg font-bold uppercase tracking-wide">
-                  AirSentinel AI
+                  VayuNetra AI
                 </h3>
                 <p className="text-sm text-muted-foreground max-w-sm">
                   Your expert environmental assistant for air quality monitoring
@@ -215,7 +213,7 @@ export default function ChatAssistant() {
             >
               {msg.role === "model" && (
                 <div className="neo-border bg-neo-yellow p-2 h-fit shrink-0">
-                  <Bot className="size-4" />
+                  <Bot className="size-4 text-primary-foreground" />
                 </div>
               )}
               <div
@@ -245,7 +243,7 @@ export default function ChatAssistant() {
               className="flex gap-3"
             >
               <div className="neo-border bg-neo-yellow p-2 h-fit shrink-0">
-                <Bot className="size-4" />
+                <Bot className="size-4 text-primary-foreground" />
               </div>
               <div className="neo-border bg-card p-3">
                 <div className="flex items-center gap-1">
@@ -283,8 +281,7 @@ export default function ChatAssistant() {
           </Button>
         </div>
         <p className="text-[10px] text-muted-foreground mt-2 text-center">
-          Powered by Google Gemini AI • Environmental data for Indore-Pithampur
-          corridor
+          Powered by Google Gemini AI • Indore-Pithampur corridor
         </p>
       </div>
     </div>
