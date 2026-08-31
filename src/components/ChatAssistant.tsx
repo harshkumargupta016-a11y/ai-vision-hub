@@ -52,6 +52,16 @@ export default function ChatAssistant() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const chat = useAction(api.chat.chat);
 
+  // Diagnostic: check env vars on mount
+  const diagCheck = useAction(api.diag.checkEnv);
+  useEffect(() => {
+    diagCheck({}).then((result) => {
+      console.log("[VayuNetra Env Check]", result);
+    }).catch((e: unknown) => {
+      console.log("[VayuNetra Env Check] Failed:", e);
+    });
+  }, [diagCheck]);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
