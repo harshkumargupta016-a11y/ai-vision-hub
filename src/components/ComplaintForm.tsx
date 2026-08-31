@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -18,8 +18,13 @@ import {
   CheckCircle2,
   Camera,
   Navigation,
+  Upload,
+  X,
+  ImageIcon,
+  Sparkles,
+  AlertTriangle,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const POLLUTION_TYPES = [
   "Crop Burning",
@@ -30,21 +35,106 @@ const POLLUTION_TYPES = [
   "Other",
 ];
 
-export default function ComplaintForm({ userId, userName }: { userId: string; userName?: string }) {
+/** Compress and resize an image file, returning a base64 data URL. */
+async function compressImage(file: File, maxDim = 1024, quality = 0.8): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          const scale = maxDim / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("Canvas error"));
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = () => reject(new Error("Failed to load image"));
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
+}
+
+export default function ComplaintForm({
+  userId,
+  userName,
+}: {
+  userId: string;
+  userName?: string;
+}) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [pollutionType, setPollutionType] = useState("");
   const [locationName, setLocationName] = useState("");
-  const [latitude, setLatitude] = useState(22.7196); // Indore default
+  const [latitude, setLatitude] = useState(22.7196);
   const [longitude, setLongitude] = useState(75.8577);
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submittedImageUrl, setSubmittedImageUrl] = useState<string | null>(null);
+
+  // Image upload state
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const createComplaint = useMutation(api.complaints.create);
   const setAiVerification = useMutation(api.complaints.setAiVerification);
   const verifyComplaint = useAction(api.aiVerify.verifyComplaint);
+
+  const handleImageFile = useCallback(async (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    setIsCompressing(true);
+    try {
+      const compressed = await compressImage(file);
+      setImageUrl(compressed);
+    } catch {
+      // Silently fail — image is optional
+    } finally {
+      setIsCompressing(false);
+    }
+  }, []);
+
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(false);
+      const file = e.dataTransfer.files[0];
+      if (file) handleImageFile(file);
+    },
+    [handleImageFile]
+  );
+
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const onDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleImageFile(file);
+  };
+
+  const removeImage = () => {
+    setImageUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const detectLocation = () => {
     setIsLocating(true);
@@ -59,7 +149,6 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
           setIsLocating(false);
         },
         () => {
-          // Fallback to Indore
           setLatitude(22.7196);
           setLongitude(75.8577);
           setLocationName("Indore, MP");
@@ -81,7 +170,6 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
     setIsSubmitting(true);
 
     try {
-      // Create the complaint
       const complaintId = await createComplaint({
         userId,
         userName,
@@ -91,6 +179,7 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
         latitude,
         longitude,
         locationName: locationName || undefined,
+        imageUrl: imageUrl || undefined,
       });
 
       // Run AI verification
@@ -100,6 +189,7 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
           title: title.trim(),
           description: description.trim(),
           pollutionType: pollutionType || undefined,
+          imageUrl: imageUrl || undefined,
         });
 
         await setAiVerification({
@@ -113,9 +203,9 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
         });
       } catch (aiError) {
         console.error("AI verification failed:", aiError);
-        // Complaint is still submitted, just not AI-verified
       }
 
+      setSubmittedImageUrl(imageUrl);
       setSubmitted(true);
     } catch (error) {
       console.error("Submit error:", error);
@@ -130,25 +220,58 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="neo-card bg-neo-green/10 p-8 text-center space-y-4"
+        className="space-y-6"
       >
-        <div className="neo-border bg-neo-green p-4 inline-block mx-auto">
-          <CheckCircle2 className="size-8 text-foreground" />
+        <div className="neo-card bg-neo-green/10 p-8 text-center space-y-4">
+          <div className="neo-border bg-neo-green p-4 inline-block mx-auto">
+            <CheckCircle2 className="size-8 text-foreground" />
+          </div>
+          <h3 className="font-bold text-lg uppercase tracking-tight">
+            Report Submitted
+          </h3>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+            Your pollution report has been submitted and sent for AI
+            verification. An admin will review it shortly. If no admin reviews
+            it within 2 hours, it will be automatically verified.
+          </p>
         </div>
-        <h3 className="font-bold text-lg uppercase">Report Submitted</h3>
-        <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-          Your pollution report has been submitted and sent for AI verification.
-          An admin will review it shortly. If no admin reviews it within 2
-          hours, it will be automatically verified.
-        </p>
+
+        {/* Show the submitted image if there was one */}
+        {submittedImageUrl && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="neo-card bg-card p-4"
+          >
+            <p className="text-xs font-bold uppercase tracking-wider mb-3 text-muted-foreground">
+              Submitted Photo
+            </p>
+            <div className="neo-border overflow-hidden">
+              <img
+                src={submittedImageUrl}
+                alt="Submitted pollution photo"
+                className="w-full h-48 object-cover"
+              />
+            </div>
+            <div className="mt-3 flex items-center gap-2 text-xs text-neo-blue">
+              <Sparkles className="size-3" />
+              <span>Gemini AI is analyzing this image...</span>
+            </div>
+          </motion.div>
+        )}
+
         <Button
           onClick={() => {
             setSubmitted(false);
             setTitle("");
             setDescription("");
             setPollutionType("");
+            setImageUrl(null);
+            setSubmittedImageUrl(null);
+            if (fileInputRef.current) fileInputRef.current.value = "";
           }}
-          className="neo-btn bg-primary text-primary-foreground"
+          className="neo-btn bg-primary text-primary-foreground w-full"
         >
           Submit Another Report
         </Button>
@@ -157,7 +280,122 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Image Upload Zone — Drag & Drop */}
+      <div className="space-y-2">
+        <label className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+          <Camera className="size-3" />
+          Photo Evidence
+          <span className="text-muted-foreground font-normal normal-case">
+            (optional)
+          </span>
+        </label>
+
+        <AnimatePresence mode="wait">
+          {imageUrl ? (
+            /* ---- Image Preview ---- */
+            <motion.div
+              key="preview"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative neo-card bg-card overflow-hidden"
+            >
+              <div className="neo-border overflow-hidden">
+                <img
+                  src={imageUrl}
+                  alt="Uploaded pollution photo"
+                  className="w-full h-48 object-cover"
+                />
+              </div>
+              <div className="absolute top-2 right-2 flex gap-2">
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="neo-border bg-neo-red text-white p-1.5 hover:bg-neo-red/80 transition-colors cursor-pointer"
+                >
+                  <X className="size-3" />
+                </button>
+              </div>
+              <div className="p-3 flex items-center gap-2 text-xs text-neo-green">
+                <CheckCircle2 className="size-3" />
+                <span className="font-medium">Photo ready for submission</span>
+              </div>
+            </motion.div>
+          ) : /* ---- Drop Zone ---- */
+          isCompressing ? (
+            <motion.div
+              key="compressing"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="neo-border bg-card p-8 text-center"
+            >
+              <Loader2 className="size-8 mx-auto mb-3 animate-spin text-neo-blue" />
+              <p className="text-xs font-bold uppercase">Processing image...</p>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="dropzone"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
+              onClick={() => fileInputRef.current?.click()}
+              className={`
+                neo-border border-dashed cursor-pointer transition-all duration-200
+                ${
+                  isDragOver
+                    ? "bg-neo-yellow/20 border-neo-yellow scale-[1.02]"
+                    : "bg-card hover:bg-muted/50 hover:border-neo-blue"
+                }
+                p-8 text-center group
+              `}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={onFileSelect}
+                className="hidden"
+              />
+
+              <div
+                className={`
+                  neo-border p-3 inline-block mb-3 transition-colors
+                  ${
+                    isDragOver
+                      ? "bg-neo-yellow text-foreground"
+                      : "bg-muted group-hover:bg-neo-blue/10"
+                  }
+                `}
+              >
+                {isDragOver ? (
+                  <Upload className="size-6 text-foreground" />
+                ) : (
+                  <ImageIcon className="size-6 text-muted-foreground group-hover:text-neo-blue transition-colors" />
+                )}
+              </div>
+
+              <p className="font-bold text-sm uppercase tracking-tight mb-1">
+                {isDragOver ? "Drop your photo here" : "Drag & drop a photo"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                or{" "}
+                <span className="text-neo-blue font-medium underline">
+                  browse files
+                </span>
+              </p>
+              <p className="text-[10px] text-muted-foreground mt-2">
+                JPG, PNG, WebP — max 10 MB
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Title */}
       <div className="space-y-2">
         <label className="text-xs font-bold uppercase tracking-wider">
           Report Title
@@ -171,6 +409,7 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
         />
       </div>
 
+      {/* Description */}
       <div className="space-y-2">
         <label className="text-xs font-bold uppercase tracking-wider">
           Description
@@ -184,6 +423,7 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
         />
       </div>
 
+      {/* Pollution Type */}
       <div className="space-y-2">
         <label className="text-xs font-bold uppercase tracking-wider">
           Pollution Type
@@ -202,6 +442,7 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
         </Select>
       </div>
 
+      {/* Location */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className="text-xs font-bold uppercase tracking-wider">
@@ -247,6 +488,7 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
         </div>
       </div>
 
+      {/* Submit */}
       <Button
         type="submit"
         disabled={!title.trim() || !description.trim() || isSubmitting}
@@ -255,7 +497,7 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 size-4 animate-spin" />
-            {isVerifying ? "AI Verifying..." : "Submitting..."}
+            {isVerifying ? "Gemini AI Verifying..." : "Submitting..."}
           </>
         ) : (
           <>
@@ -265,10 +507,16 @@ export default function ComplaintForm({ userId, userName }: { userId: string; us
         )}
       </Button>
 
-      <p className="text-[10px] text-muted-foreground text-center">
-        Your report will be verified by Gemini AI and then reviewed by an
-        admin. Unreviewed reports auto-verify after 2 hours.
-      </p>
+      {/* Process Note */}
+      <div className="neo-border bg-neo-yellow/10 p-3 flex items-start gap-2">
+        <AlertTriangle className="size-3 mt-0.5 shrink-0 text-neo-yellow" />
+        <p className="text-[11px] text-muted-foreground leading-relaxed">
+          Your report will be verified by{" "}
+          <span className="font-bold text-foreground">Gemini AI</span> (including
+          any photo you upload) and then reviewed by an admin. Unreviewed reports
+          auto-verify after 2 hours.
+        </p>
+      </div>
     </form>
   );
 }
