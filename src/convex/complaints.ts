@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { api } from "./_generated/api";
 
 // Get all complaints (for browsing/searching)
 export const list = query({
@@ -99,12 +100,22 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const now = Date.now();
     const twoHours = 2 * 60 * 60 * 1000;
-    return await ctx.db.insert("complaints", {
+    const complaintId = await ctx.db.insert("complaints", {
       ...args,
       status: "pending",
       createdAt: now,
       expiresAt: now + twoHours,
     });
+
+    // Schedule email notification (non-blocking)
+    ctx.scheduler.runAfter(0, api.emails.sendReportSubmittedEmail, {
+      userId: args.userId,
+      userName: args.userName,
+      title: args.title,
+      locationName: args.locationName,
+    });
+
+    return complaintId;
   },
 });
 
@@ -121,6 +132,8 @@ export const adminVerify = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    const doc = await ctx.db.get(args.complaintId as any);
+    const complaint = doc && "description" in doc ? doc : null;
     await ctx.db.patch(args.complaintId as any, {
       status: args.status,
       adminId: args.adminId,
@@ -128,6 +141,17 @@ export const adminVerify = mutation({
       pollutionType: args.pollutionType,
       verifiedAt: Date.now(),
     });
+
+    // Schedule email notification (non-blocking)
+    if (complaint?.userId) {
+      ctx.scheduler.runAfter(0, api.emails.sendReportVerifiedEmail, {
+        userId: complaint.userId,
+        userName: complaint.userName,
+        title: complaint.title,
+        status: args.status,
+        notes: args.adminNotes,
+      });
+    }
   },
 });
 
@@ -143,11 +167,25 @@ export const setAiVerification = mutation({
     }),
   },
   handler: async (ctx, args) => {
+    const doc = await ctx.db.get(args.complaintId as any);
+    const complaint = doc && "description" in doc ? doc : null;
     await ctx.db.patch(args.complaintId as any, {
       status: "ai_verified",
       aiVerification: args.aiVerification,
       pollutionType: args.aiVerification.pollutionType,
     });
+
+    // Schedule email notification (non-blocking)
+    if (complaint?.userId) {
+      ctx.scheduler.runAfter(0, api.emails.sendReportVerifiedEmail, {
+        userId: complaint.userId,
+        userName: complaint.userName,
+        title: complaint.title,
+        status: "ai_verified",
+        severity: args.aiVerification.severity,
+        notes: args.aiVerification.notes,
+      });
+    }
   },
 });
 
@@ -167,6 +205,18 @@ export const autoVerifyExpired = mutation({
           status: "auto_verified",
           verifiedAt: now,
         });
+
+        // Schedule email notification (non-blocking)
+        if (complaint.userId) {
+          ctx.scheduler.runAfter(0, api.emails.sendReportVerifiedEmail, {
+            userId: complaint.userId,
+            userName: complaint.userName,
+            title: complaint.title,
+            status: "auto_verified",
+            notes: "This report was automatically verified after 2 hours without admin review.",
+          });
+        }
+
         count++;
       }
     }
