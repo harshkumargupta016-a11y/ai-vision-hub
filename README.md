@@ -30,6 +30,7 @@ The convex server has a separate set of environment variables that are accessibl
 Currently, these variables include auth-specific keys: JWKS, JWT_PRIVATE_KEY, and SITE_URL.
 
 
+
 # Using Authentication (Important!)
 
 You must follow these conventions when using authentication.
