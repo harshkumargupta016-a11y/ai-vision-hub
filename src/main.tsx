@@ -18,6 +18,8 @@ const HotspotMap = lazy(() => import("./pages/HotspotMap.tsx"));
 const ReportPage = lazy(() => import("./pages/ReportPage.tsx"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+const HelpPage = lazy(() => import("./pages/HelpPage.tsx"));
+const FloatingChatButton = lazy(() => import("./components/FloatingChatButton"));
 
 // Simple loading fallback for route transitions
 function RouteLoading() {
@@ -168,8 +170,19 @@ createRoot(document.getElementById("root")!).render(
                   </RequireAuth>
                 }
               />
+              <Route
+                path="/help"
+                element={
+                  <RequireAuth>
+                    <HelpPage />
+                  </RequireAuth>
+                }
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
+          </Suspense>
+          <Suspense fallback={null}>
+            <FloatingChatButton />
           </Suspense>
         </BrowserRouter>
         <Toaster />

@@ -82,6 +82,13 @@ export default function ComplaintForm({
   const [isVerifying, setIsVerifying] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submittedImageUrl, setSubmittedImageUrl] = useState<string | null>(null);
+  const [aiResult, setAiResult] = useState<{
+    pollutionType: string;
+    confidence: number;
+    severity: string;
+    notes: string;
+    analyzedImage: boolean;
+  } | null>(null);
 
   // Image upload state
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -182,15 +189,17 @@ export default function ComplaintForm({
         imageUrl: imageUrl || undefined,
       });
 
-      // Run AI verification
+      // Run AI verification (with photo analysis if an image was uploaded)
       setIsVerifying(true);
       try {
         const verification = await verifyComplaint({
           title: title.trim(),
           description: description.trim(),
           pollutionType: pollutionType || undefined,
-          imageUrl: imageUrl || undefined,
+          imageDataUrl: imageUrl || undefined,
         });
+
+        setAiResult(verification);
 
         await setAiVerification({
           complaintId: complaintId as string,
@@ -216,6 +225,16 @@ export default function ComplaintForm({
   };
 
   if (submitted) {
+    const confidencePct = aiResult ? Math.round(aiResult.confidence * 100) : null;
+    const confidenceColor =
+      confidencePct === null
+        ? ""
+        : confidencePct >= 75
+          ? "text-neo-green"
+          : confidencePct >= 50
+            ? "text-neo-yellow"
+            : "text-neo-orange";
+
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -236,6 +255,76 @@ export default function ComplaintForm({
           </p>
         </div>
 
+        {/* Gemini verification result with confidence score */}
+        {aiResult && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="neo-card bg-card p-5 space-y-3"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="neo-border bg-neo-blue p-1.5">
+                  <Sparkles className="size-4 text-white" />
+                </div>
+                <p className="text-xs font-bold uppercase tracking-wider">
+                  Gemini AI Verification
+                </p>
+              </div>
+              {aiResult.analyzedImage && (
+                <span className="neo-tag bg-neo-purple/20 text-neo-purple border-neo-purple px-2 py-0.5 text-[10px]">
+                  Photo Analyzed
+                </span>
+              )}
+            </div>
+
+            {/* Confidence score bar */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Confidence Score</span>
+                <span className={`font-black text-lg ${confidenceColor}`}>
+                  {confidencePct}%
+                </span>
+              </div>
+              <div className="neo-border h-3 bg-muted overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${confidencePct}%` }}
+                  transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
+                  className={`h-full ${
+                    (confidencePct ?? 0) >= 75
+                      ? "bg-neo-green"
+                      : (confidencePct ?? 0) >= 50
+                        ? "bg-neo-yellow"
+                        : "bg-neo-orange"
+                  }`}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="neo-border bg-background p-2">
+                <p className="text-muted-foreground text-[10px] uppercase">Type</p>
+                <p className="font-bold">{aiResult.pollutionType}</p>
+              </div>
+              <div className="neo-border bg-background p-2">
+                <p className="text-muted-foreground text-[10px] uppercase">Severity</p>
+                <p className="font-bold uppercase">{aiResult.severity}</p>
+              </div>
+            </div>
+
+            {aiResult.notes && (
+              <div className="neo-border bg-neo-blue/5 p-3">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  <span className="font-bold text-foreground">AI Notes: </span>
+                  {aiResult.notes}
+                </p>
+              </div>
+            )}
+          </motion.div>
+        )}
+
         {/* Show the submitted image if there was one */}
         {submittedImageUrl && (
           <motion.div
@@ -254,10 +343,12 @@ export default function ComplaintForm({
                 className="w-full h-48 object-cover"
               />
             </div>
-            <div className="mt-3 flex items-center gap-2 text-xs text-neo-blue">
-              <Sparkles className="size-3" />
-              <span>Gemini AI is analyzing this image...</span>
-            </div>
+            {aiResult?.analyzedImage && (
+              <div className="mt-3 flex items-center gap-2 text-xs text-neo-green">
+                <CheckCircle2 className="size-3" />
+                <span>Gemini Vision analyzed this photo as part of verification.</span>
+              </div>
+            )}
           </motion.div>
         )}
 
@@ -269,6 +360,7 @@ export default function ComplaintForm({
             setPollutionType("");
             setImageUrl(null);
             setSubmittedImageUrl(null);
+            setAiResult(null);
             if (fileInputRef.current) fileInputRef.current.value = "";
           }}
           className="neo-btn bg-primary text-primary-foreground w-full"

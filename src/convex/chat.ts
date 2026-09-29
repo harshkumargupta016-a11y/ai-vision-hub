@@ -4,7 +4,13 @@ import { action } from "./_generated/server";
 import { v } from "convex/values";
 
 const GEMINI_API_KEY = process.env.GOOGLE_API_KEY || process.env.VITE_GOOGLE_API_KEY;
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent";
+const GEMINI_MODELS = [
+  "gemini-3.8-flash",
+  "gemini-3.7-flash",
+  "gemini-3.6-flash",
+  "gemini-3.5-flash",
+  "gemini-2.5-flash",
+];
 
 interface GeminiMessage {
   role: "user" | "model";
@@ -63,28 +69,42 @@ Guidelines:
         parts: [{ text: msg.content }],
       }));
 
-      const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const body = JSON.stringify({
+        contents: geminiMessages,
+        systemInstruction: {
+          parts: [{ text: systemPrompt }],
         },
-        body: JSON.stringify({
-          contents: geminiMessages,
-          systemInstruction: {
-            parts: [{ text: systemPrompt }],
-          },
-          generationConfig: {
-            temperature: 0.7,
-            topP: 0.9,
-            topK: 40,
-            maxOutputTokens: 2048,
-          },
-        }),
+        generationConfig: {
+          temperature: 0.7,
+          topP: 0.9,
+          topK: 40,
+          maxOutputTokens: 2048,
+        },
       });
 
-      if (!response.ok) {
+      // Try models in order — fall through on 404 (retired), 429 (quota), or 503 (overloaded)
+      let data: {
+        candidates?: { content?: { parts?: { text?: string }[] } }[];
+      } | null = null;
+      let lastError = "";
+
+      for (const model of GEMINI_MODELS) {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body,
+          }
+        );
+
+        if (response.ok) {
+          data = await response.json();
+          break;
+        }
+
         const errorText = await response.text();
-        console.error("Gemini API error:", response.status, errorText);
+        console.error(`Gemini API error (${model}):`, response.status, errorText);
         let detail = "";
         try {
           const errJson = JSON.parse(errorText);
@@ -92,10 +112,17 @@ Guidelines:
         } catch {
           detail = errorText.substring(0, 300);
         }
-        throw new Error(`Gemini API error ${response.status}: ${detail}`);
+        lastError = `Gemini API error ${response.status}: ${detail}`;
+
+        // Retry with the next model on these recoverable errors
+        if (response.status === 404 || response.status === 429 || response.status === 503) {
+          continue;
+        }
+        // Non-recoverable (bad key, bad request, etc.) — fail immediately
+        throw new Error(lastError);
       }
 
-      const data = await response.json();
+      if (!data) throw new Error(lastError || "All Gemini models are unavailable right now.");
 
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!text) {
