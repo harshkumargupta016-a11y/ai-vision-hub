@@ -42,7 +42,7 @@ const schema = defineSchema(
       latitude: v.number(),
       longitude: v.number(),
       locationName: v.optional(v.string()),
-      imageUrl: v.optional(v.string()),
+      imageDataUrl: v.optional(v.string()),
       aqi: v.optional(v.number()),
       status: v.union(
         v.literal("pending"),

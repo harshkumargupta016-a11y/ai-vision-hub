@@ -91,7 +91,7 @@ export default function ComplaintForm({
   } | null>(null);
 
   // Image upload state
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -105,7 +105,7 @@ export default function ComplaintForm({
     setIsCompressing(true);
     try {
       const compressed = await compressImage(file);
-      setImageUrl(compressed);
+      setImageDataUrl(compressed);
     } catch {
       // Silently fail — image is optional
     } finally {
@@ -139,7 +139,7 @@ export default function ComplaintForm({
   };
 
   const removeImage = () => {
-    setImageUrl(null);
+    setImageDataUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -186,7 +186,7 @@ export default function ComplaintForm({
         latitude,
         longitude,
         locationName: locationName || undefined,
-        imageUrl: imageUrl || undefined,
+        imageDataUrl: imageDataUrl || undefined,
       });
 
       // Run AI verification (with photo analysis if an image was uploaded)
@@ -196,7 +196,7 @@ export default function ComplaintForm({
           title: title.trim(),
           description: description.trim(),
           pollutionType: pollutionType || undefined,
-          imageDataUrl: imageUrl || undefined,
+          imageDataUrl: imageDataUrl || undefined,
         });
 
         setAiResult(verification);
@@ -214,7 +214,7 @@ export default function ComplaintForm({
         console.error("AI verification failed:", aiError);
       }
 
-      setSubmittedImageUrl(imageUrl);
+      setSubmittedImageUrl(imageDataUrl);
       setSubmitted(true);
     } catch (error) {
       console.error("Submit error:", error);
@@ -358,7 +358,7 @@ export default function ComplaintForm({
             setTitle("");
             setDescription("");
             setPollutionType("");
-            setImageUrl(null);
+            setImageDataUrl(null);
             setSubmittedImageUrl(null);
             setAiResult(null);
             if (fileInputRef.current) fileInputRef.current.value = "";
@@ -384,7 +384,7 @@ export default function ComplaintForm({
         </label>
 
         <AnimatePresence mode="wait">
-          {imageUrl ? (
+          {imageDataUrl ? (
             /* ---- Image Preview ---- */
             <motion.div
               key="preview"
@@ -395,7 +395,7 @@ export default function ComplaintForm({
             >
               <div className="neo-border overflow-hidden">
                 <img
-                  src={imageUrl}
+                  src={imageDataUrl}
                   alt="Uploaded pollution photo"
                   className="w-full h-48 object-cover"
                 />
