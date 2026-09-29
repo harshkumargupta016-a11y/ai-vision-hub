@@ -139,7 +139,7 @@ const TOPICS = [
 
 export default function HelpPage() {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { isAuthenticated, signOut } = useAuth();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
 
@@ -176,13 +176,23 @@ export default function HelpPage() {
             </div>
             <h1 className="font-black text-sm uppercase tracking-wide">Help &amp; FAQ</h1>
           </div>
-          <button
-            onClick={handleSignOut}
-            className="neo-border bg-card p-2 hover:bg-muted transition-colors cursor-pointer"
-            aria-label="Sign out"
-          >
-            <LogOut className="size-4" />
-          </button>
+          {isAuthenticated ? (
+            <button
+              onClick={handleSignOut}
+              className="neo-border bg-card p-2 hover:bg-muted transition-colors cursor-pointer"
+              aria-label="Sign out"
+            >
+              <LogOut className="size-4" />
+            </button>
+          ) : (
+            <Button
+              size="sm"
+              className="neo-btn bg-primary text-primary-foreground"
+              onClick={() => navigate("/auth?returnTo=/help")}
+            >
+              Sign In
+            </Button>
+          )}
         </div>
       </header>
 

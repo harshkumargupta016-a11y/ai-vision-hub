@@ -124,6 +124,13 @@ export default function Landing() {
             <Button
               variant="ghost"
               className="neo-btn hidden sm:flex"
+              onClick={() => navigate("/help")}
+            >
+              Help &amp; FAQ
+            </Button>
+            <Button
+              variant="ghost"
+              className="neo-btn hidden sm:flex"
               onClick={() => navigate("/auth")}
             >
               Sign In
@@ -462,6 +469,20 @@ export default function Landing() {
               <Eye className="size-4 text-foreground" />
             </div>
             <span className="font-black uppercase text-sm">VayuNetra</span>
+            </div>
+            <div className="flex items-center gap-4 text-xs">
+              <button
+                onClick={() => navigate("/help")}
+                className="font-bold uppercase tracking-wide hover:text-neo-blue transition-colors cursor-pointer"
+              >
+                Help &amp; FAQ
+              </button>
+              <button
+                onClick={() => navigate("/auth")}
+                className="font-bold uppercase tracking-wide hover:text-neo-blue transition-colors cursor-pointer"
+              >
+                Sign In
+              </button>
             </div>
             <p className="text-xs text-muted-foreground">
               © 2026 VayuNetra. Environmental monitoring powered by Google AI.

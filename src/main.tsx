@@ -170,14 +170,7 @@ createRoot(document.getElementById("root")!).render(
                   </RequireAuth>
                 }
               />
-              <Route
-                path="/help"
-                element={
-                  <RequireAuth>
-                    <HelpPage />
-                  </RequireAuth>
-                }
-              />
+              <Route path="/help" element={<HelpPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
