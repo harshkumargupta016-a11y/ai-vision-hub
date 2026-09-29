@@ -2,20 +2,7 @@
 
 import { action } from "./_generated/server";
 import { v } from "convex/values";
-
-const GEMINI_API_KEY = process.env.GOOGLE_API_KEY || process.env.VITE_GOOGLE_API_KEY;
-const GEMINI_MODELS = [
-  "gemini-3.8-flash",
-  "gemini-3.7-flash",
-  "gemini-3.6-flash",
-  "gemini-3.5-flash",
-  "gemini-2.5-flash",
-];
-
-interface GeminiMessage {
-  role: "user" | "model";
-  parts: { text: string }[];
-}
+import { geminiGenerate, type GeminiContent } from "./gemini";
 
 export const chat = action({
   args: {
@@ -28,12 +15,6 @@ export const chat = action({
   },
   handler: async (_ctx, args) => {
     try {
-      if (!GEMINI_API_KEY) {
-        throw new Error(
-          "Gemini API key not configured. Add GOOGLE_API_KEY in your Convex dashboard → Settings → Environment Variables."
-        );
-      }
-
       const systemPrompt = `You are VayuNetra AI, an expert environmental assistant specializing in air quality monitoring, pollution analysis, and environmental protection for the Indore-Pithampur corridor in Madhya Pradesh, India.
 
 Your name "VayuNetra" means "Eye on the Air" — you are the intelligent monitoring brain behind the VayuNetra platform.
@@ -52,7 +33,7 @@ Platform features you should know about:
 - Your AI verification analyzes reports for pollution type, severity, and confidence
 - Admin review provides human-in-the-loop verification
 - Reports auto-verify after 2 hours if not reviewed
-- Real-time AQI monitoring across the Indore-Pithampur corridor
+- Real-time AQI models across the Indore-Pithampur corridor
 - Hotspot mapping with 72-hour forecasting
 
 Guidelines:
@@ -64,77 +45,21 @@ Guidelines:
 - If asked about reporting pollution, guide users to the Report page
 - If asked about maps, guide users to the Hotspot Map page`;
 
-      const geminiMessages: GeminiMessage[] = args.messages.map((msg) => ({
+      const contents: GeminiContent[] = args.messages.map((msg) => ({
         role: msg.role,
         parts: [{ text: msg.content }],
       }));
 
-      const body = JSON.stringify({
-        contents: geminiMessages,
-        systemInstruction: {
-          parts: [{ text: systemPrompt }],
-        },
-        generationConfig: {
-          temperature: 0.7,
-          topP: 0.9,
-          topK: 40,
-          maxOutputTokens: 2048,
-        },
+      const text = await geminiGenerate({
+        contents,
+        systemPrompt,
+        temperature: 0.7,
+        maxOutputTokens: 2048,
       });
-
-      // Try models in order — fall through on 404 (retired), 429 (quota), or 503 (overloaded)
-      let data: {
-        candidates?: { content?: { parts?: { text?: string }[] } }[];
-      } | null = null;
-      let lastError = "";
-
-      for (const model of GEMINI_MODELS) {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body,
-          }
-        );
-
-        if (response.ok) {
-          data = await response.json();
-          break;
-        }
-
-        const errorText = await response.text();
-        console.error(`Gemini API error (${model}):`, response.status, errorText);
-        let detail = "";
-        try {
-          const errJson = JSON.parse(errorText);
-          detail = errJson?.error?.message || errorText.substring(0, 300);
-        } catch {
-          detail = errorText.substring(0, 300);
-        }
-        lastError = `Gemini API error ${response.status}: ${detail}`;
-
-        // Retry with the next model on these recoverable errors
-        if (response.status === 404 || response.status === 429 || response.status === 503) {
-          continue;
-        }
-        // Non-recoverable (bad key, bad request, etc.) — fail immediately
-        throw new Error(lastError);
-      }
-
-      if (!data) throw new Error(lastError || "All Gemini models are unavailable right now.");
-
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!text) {
-        console.error("Gemini empty response:", JSON.stringify(data).substring(0, 500));
-        throw new Error(
-          "Gemini returned an empty response. This may indicate a content filter, safety block, or invalid request. Check your API key permissions."
-        );
-      }
 
       return text;
     } catch (err) {
-      // Ensure the real error message is always returned to the client
+      // Always surface the real error message to the client
       const message = err instanceof Error ? err.message : String(err);
       console.error("[VayuNetra Chat Error]", message);
       throw new Error(message);

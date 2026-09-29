@@ -2,15 +2,7 @@
 
 import { action } from "./_generated/server";
 import { v } from "convex/values";
-
-const GEMINI_API_KEY = process.env.GOOGLE_API_KEY || process.env.VITE_GOOGLE_API_KEY;
-const GEMINI_MODELS = [
-  "gemini-3.8-flash",
-  "gemini-3.7-flash",
-  "gemini-3.6-flash",
-  "gemini-3.5-flash",
-  "gemini-2.5-flash",
-];
+import { geminiGenerate, type GeminiPart } from "./gemini";
 
 export const verifyComplaint = action({
   args: {
@@ -21,10 +13,6 @@ export const verifyComplaint = action({
     imageDataUrl: v.optional(v.string()),
   },
   handler: async (_ctx, args) => {
-    if (!GEMINI_API_KEY) {
-      throw new Error("Gemini API key not configured");
-    }
-
     const hasImage = !!args.imageDataUrl;
 
     const prompt = `You are an environmental pollution analyst for VayuNetra, an air quality monitoring platform for the Indore-Pithampur corridor in Madhya Pradesh, India.
@@ -47,10 +35,6 @@ Respond in this exact JSON format (no markdown fences, just raw JSON):
 }`;
 
     // Build request parts — image first (inline_data), then the text prompt
-    interface GeminiPart {
-      text?: string;
-      inline_data?: { mime_type: string; data: string };
-    }
     const parts: GeminiPart[] = [];
 
     if (args.imageDataUrl) {
@@ -66,55 +50,12 @@ Respond in this exact JSON format (no markdown fences, just raw JSON):
     }
     parts.push({ text: prompt });
 
-    const body = JSON.stringify({
+    const text = await geminiGenerate({
       contents: [{ role: "user", parts }],
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 512,
-        responseMimeType: "application/json",
-      },
+      temperature: 0.3,
+      maxOutputTokens: 512,
+      responseMimeType: "application/json",
     });
-
-    // Try models in order — fall through on 404 (retired), 429 (quota), 503 (overloaded)
-    let text: string | undefined;
-    let lastError = "";
-
-    for (const model of GEMINI_MODELS) {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body,
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) break;
-        lastError = "Gemini returned an empty response";
-        continue;
-      }
-
-      const errorText = await response.text();
-      console.error(`Gemini API error (${model}):`, response.status, errorText);
-      let detail = "";
-      try {
-        const errJson = JSON.parse(errorText);
-        detail = errJson?.error?.message || errorText.substring(0, 200);
-      } catch {
-        detail = errorText.substring(0, 200);
-      }
-      lastError = `Gemini API error ${response.status}: ${detail}`;
-
-      if (response.status === 404 || response.status === 429 || response.status === 503) {
-        continue;
-      }
-      throw new Error(lastError);
-    }
-
-    if (!text) throw new Error(lastError || "All Gemini models are unavailable right now.");
 
     try {
       const parsed = JSON.parse(text);
